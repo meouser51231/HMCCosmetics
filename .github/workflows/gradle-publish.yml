@@ -27,12 +27,6 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Upload JAR artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: plugin-jar
-          path: build/libs/*.jar
-
       - name: Create Auto Tag
         id: create_tag
         run: |
@@ -48,17 +42,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download JAR artifact
-        uses: actions/download-artifact@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
         with:
-          name: plugin-jar
-          path: jar-output
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
+
+      - name: Rebuild (optional, or use upload/download artifact)
+        run: ./gradlew build
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.build.outputs.tag_name }}
           name: "Release ${{ needs.build.outputs.tag_name }}"
-          files: jar-output/*.jar
+          files: build/libs/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
