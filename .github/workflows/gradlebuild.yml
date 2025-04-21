@@ -1,9 +1,10 @@
 name: Auto Build and Release Plugin
 
 on:
+  workflow_dispatch:
   push:
     branches: [ master, develop ]
-
+    
 jobs:
   build:
     runs-on: ubuntu-latest
